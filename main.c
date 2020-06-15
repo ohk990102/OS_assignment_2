@@ -10,7 +10,6 @@
 
 #define MAX_PROGRAM_COUNT   100  
 
-#define FOR_ITER_LIST(it, list, size) for(typeof((list)) it = (list); it < &list[(size)]; it++)
 #define GET_ELAPSED_TIME(time)  (unsigned long)((time) - start)
 
 SCHEDULER scheduler_struct = {
@@ -21,8 +20,6 @@ SCHEDULER scheduler_struct = {
 };
 
 void initialize(int cnt) {
-    setvbuf(stdout, 0, 2, 0);
-    setvbuf(stdin, 0, 1, 0);
     scheduler_struct.process_cnt = cnt;
     scheduler_struct.process = (PROCESS *) malloc(sizeof(PROCESS) * scheduler_struct.process_cnt);
     bzero(scheduler_struct.process, sizeof(PROCESS) * scheduler_struct.process_cnt);
@@ -102,17 +99,21 @@ void parse_log(char *path) {
         FOR_ITER_LIST(it, scheduler_struct.process, scheduler_struct.process_cnt) {
             if (strcmp(it->program, program_name) == 0) {
                 it->predicted_burst_time = (unsigned long) (burst_time * SMOOTHING_FACTOR + it->predicted_burst_time * (1 - SMOOTHING_FACTOR));
-                break;
             }
         }
     }
 }
 
 int main(int argc, char *argv[]) {
+    setvbuf(stdout, 0, 2, 0);
+    setvbuf(stdin, 0, 1, 0);
+
     if (argc < 3) {
         fprintf(stderr, "Usage: %s [Config] [Log]\n", argv[0]);
         exit(-1);
     }
+
+    printf("[*] Loading...");
 
     char *program_list;
     unsigned int program_count = parse_config(&program_list, argv[1]);
@@ -131,8 +132,8 @@ int main(int argc, char *argv[]) {
 
     // Wait for all process go to SIGSTOP
 
-    puts("Loading...");
     sleep(1);
+    puts("done");
 
     const clock_t start = clock();
     clock_t cu = -1;
