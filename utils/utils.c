@@ -16,7 +16,7 @@
 #define MAX_CMD_SIZE    100
 #define MAX_ARG_COUNT   10
 
-void __attribute__((weak)) cont_process(pid_t pid) {
+void cont_process(pid_t pid) {
     kill(pid, SIGCONT);
 }
 
@@ -28,7 +28,6 @@ pid_t fork_and_wait(char *path) {
     strncpy(cmd_buf, path, sizeof(cmd_buf));
     char *strtok_state = NULL;
     char *filename = strtok_r(cmd_buf, " ", &strtok_state);
-    printf("filename = %s\n", filename);
 
     char *args[MAX_ARG_COUNT] = { NULL };
 
@@ -43,7 +42,6 @@ pid_t fork_and_wait(char *path) {
         }
 
         args[current_arg_idx] = current_arg;
-        printf("args[%ld] = %s\n", current_arg_idx, args[current_arg_idx]);
     }
 
     pid_t pid = fork();

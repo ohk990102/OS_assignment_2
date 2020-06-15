@@ -8,8 +8,9 @@
 
 #include "../scheduler.h"
 #include "../utils/linkedlist.h"
+#include "../utils/utils.h"
 
-#define RR_TIME_QUANTUM     100000   // 100 ms
+float rr_time_quantum = 0.05;
 
 typedef struct RR_SCHEDULE {
     LinkedList list;
@@ -53,10 +54,6 @@ void push_schedule_entry(pid_t pid) {
     append_tail(&internal_schedule_struct.list, node);
 }
 
-int cont_process(pid_t pid) {
-    kill(pid, SIGCONT);
-}
-
 pid_t next_process() {
     while(1) {
         LinkedListNode *node = peek_head(&internal_schedule_struct.list);
@@ -86,7 +83,7 @@ pid_t next_process() {
 clock_t cu = 0;
 
 int check_should_schedule() {
-    if (((float) ((unsigned long)(clock() - cu)) / CLOCKS_PER_SEC) >= (float)0.18) {
+    if (((float) ((unsigned long)(clock() - cu)) / CLOCKS_PER_SEC) >= rr_time_quantum) {
         kill(scheduler_struct.current_pid, SIGSTOP);
         while(1) {
             int wstatus;
@@ -111,7 +108,29 @@ int check_should_schedule() {
     return 0;
 }
 
+int cmp_process_burst_time(const PROCESS *a, const PROCESS *b) {
+    // Shortest job first
+    if (a->predicted_burst_time < b->predicted_burst_time)
+        return -1;
+    else if (a->predicted_burst_time > b->predicted_burst_time)
+        return 1;
+    else if (a < b)
+        return -1;
+    else
+        return 1;
+}
+
 void initialize_scheduler() {
+    SORT_PROCESS(scheduler_struct, (int (*)(const void *, const void *))cmp_process_burst_time);
+    
+    int idx = (int) (scheduler_struct.process_cnt * 4 / 5);
+    if (idx < scheduler_struct.process_cnt) {
+        if (scheduler_struct.process[idx].predicted_burst_time != 0) {
+            rr_time_quantum = (float) scheduler_struct.process[idx].predicted_burst_time / CLOCKS_PER_SEC;
+        }
+    }
+
+    printf("[*] rr time quantum: %f\n", rr_time_quantum);
     cu = clock();
     // signal(SIGCHLD, schedule);
 }
