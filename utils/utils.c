@@ -43,7 +43,7 @@ pid_t fork_and_wait(char *path) {
         }
 
         args[current_arg_idx] = current_arg;
-        printf("args[%d] = %s\n", current_arg_idx, args[current_arg_idx]);
+        printf("args[%ld] = %s\n", current_arg_idx, args[current_arg_idx]);
     }
 
     pid_t pid = fork();

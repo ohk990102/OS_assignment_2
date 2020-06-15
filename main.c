@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
         cu = clock();
         cont_process(next_pid);
 
-        while (!check_should_schedule(cu)) {}
+        while (!check_should_schedule()) {}
     }
     
     puts("[+] Complete all process");

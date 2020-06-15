@@ -85,7 +85,7 @@ pid_t next_process() {
 
 clock_t cu = 0;
 
-int check_should_schedule(clock_t _) {
+int check_should_schedule() {
     if (((float) ((unsigned long)(clock() - cu)) / CLOCKS_PER_SEC) >= (float)0.18) {
         kill(scheduler_struct.current_pid, SIGSTOP);
         while(1) {

@@ -36,6 +36,7 @@ void initialize_scheduler();
 void schedule(int signo);
 void push_schedule_entry(int pid);
 pid_t next_process();
+int check_should_schedule();
 
 extern SCHEDULER scheduler_struct;
 

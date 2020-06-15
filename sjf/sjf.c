@@ -74,7 +74,7 @@ int cmp_process_burst_time(const PROCESS *a, const PROCESS *b) {
         return 1;
 }
 
-int check_should_schedule(clock_t cu) {
+int check_should_schedule() {
     int wstatus;
     int ret = waitpid(scheduler_struct.current_pid, &wstatus, WNOHANG);
     if (ret == -1)
@@ -88,5 +88,5 @@ void initialize_scheduler() {
     // signal(SIGCHLD, schedule);
 
     // Sorting for SJF
-    SORT_PROCESS(scheduler_struct, cmp_process_burst_time);
+    SORT_PROCESS(scheduler_struct, (int (*)(const void *, const void *))cmp_process_burst_time);
 }
